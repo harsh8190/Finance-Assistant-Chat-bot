@@ -1,66 +1,36 @@
-# ◈ FinCoach — Personal AI Finance Coach
+### AI Chat Endpoints
+* `POST /api/chat`: Submit user query; returns assistant response based on live financial context.
+* `GET /api/chat/history`: Retrieve past conversational turns.
+* `POST /api/chat/clear`: Reset conversation history.
 
-A modern, minimal AI-powered personal finance dashboard built with Python (Flask) + HTML/CSS/JS + Claude AI.
+### Transaction Endpoints
+* `GET /api/transactions`: List recent transactions (income and expense).
+* `POST /api/transactions`: Log a transaction (`type`, `amount`, `category`, `description`, `date`).
+* `DELETE /api/transactions/<id>`: Remove an existing transaction record.
 
----
+### Goal Endpoints
+* `GET /api/goals`: Retrieve active and completed financial targets.
+* `POST /api/goals`: Register a new savings goal (`name`, `target_amount`, `current_amount`, `deadline`).
+* `PUT /api/goals/<id>`: Update target progress or status.
+* `DELETE /api/goals/<id>`: Delete a savings target.
 
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Set Your API Key
-Edit the `.env` file and add your Anthropic API key:
-```
-ANTHROPIC_API_KEY=your_actual_key_here
-SECRET_KEY=any_random_string
-```
-Get your key at → https://console.anthropic.com
-
-### 3. Run the App
-```bash
-python app.py
-```
-
-### 4. Open in Browser
-```
-http://localhost:5000
-```
+### Analytics Endpoints
+* `GET /api/summary`: Compute aggregated income, expenses, net savings, and category distribution.
+* `GET /api/monthly-chart`: Aggregated month-by-month financial inflows and outflows for time-series charts.
 
 ---
 
-## ✨ Features
+## 🛡️ Security & Privacy Notes
 
-| Feature | Description |
-|---|---|
-| **Dashboard** | Monthly income, expenses, savings rate + charts |
-| **AI Coach** | Chat with Claude for personalized finance advice |
-| **Transactions** | Add, view, and filter income & expenses |
-| **Goals** | Set savings goals with progress tracking |
-| **Financial Health Score** | AI-computed score based on your data |
+* **Local Storage:** All financial records, transaction histories, and conversation logs reside locally in `database.db`.
+* **API Key Protection:** Credentials are kept strictly isolated within `.env`. Never commit `.env` or sensitive key strings to version control.
+* **Data Sanitization:** Context generation parses internal aggregates without exposing credentials or external identifiers.
 
 ---
 
-## 📁 Project Structure
+## 👥 Authors & Academic Context
 
-```
-finance-coach/
-├── app.py               # Flask backend + API routes
-├── .env                 # Your API keys (never commit this!)
-├── database.db          # SQLite database (auto-created)
-├── requirements.txt     # Python dependencies
-├── static/
-│   ├── style.css        # Styling
-│   └── app.js           # Frontend logic
-└── templates/
-    └── index.html       # Main UI
-```
-
----
-
-## 🛡️ Notes
-- All data is stored **locally** in `database.db`
-- Never share your `.env` file or commit it to Git
-- The AI coach uses your real transaction/goal data for personalized advice
+* **Project Title:** AI Personal Finance Coach / Finance Assistant Generative AI Chatbot
+* **Course / Context:** Academic Capstone Project, Lovely Professional University (LPU)
+* **Team Members:** Harsh Pareek, Vishwjeet Chakrwarti, Vinay Deshwal
+* **Faculty Advisor:** Mr. Sumit Mittu (Assistant Professor)
