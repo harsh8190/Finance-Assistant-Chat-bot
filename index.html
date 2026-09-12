@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinCoach — Personal AI Finance Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">◈</span>
+      <span class="brand-name">FinCoach</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">▦</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="chat">
+        <span class="nav-icon">◉</span> AI Coach
+      </button>
+      <button class="nav-item" data-view="transactions">
+        <span class="nav-icon">⊟</span> Transactions
+      </button>
+      <button class="nav-item" data-view="goals">
+        <span class="nav-icon">◎</span> Goals
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="health-badge" id="health-badge">
+        <span class="health-label">Financial Health</span>
+        <span class="health-score" id="health-score">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <section class="view active" id="view-dashboard">
+      <header class="view-header">
+        <div>
+          <p class="view-eyebrow">Overview</p>
+          <h1 class="view-title">Your <em>Financial</em> Pulse</h1>
+        </div>
+        <span class="current-date" id="current-date"></span>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card accent">
+          <p class="stat-label">Monthly Income</p>
+          <p class="stat-value" id="stat-income">₹0</p>
+          <p class="stat-sub">This month</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Total Expenses</p>
+          <p class="stat-value" id="stat-expenses">₹0</p>
+          <p class="stat-sub">This month</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Net Savings</p>
+          <p class="stat-value" id="stat-savings">₹0</p>
+          <p class="stat-sub">This month</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Savings Rate</p>
+          <p class="stat-value" id="stat-rate">0%</p>
+          <p class="stat-sub">Of income saved</p>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card wide">
+          <p class="chart-title">Income vs Expenses</p>
+          <canvas id="barChart" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <p class="chart-title">Spending by Category</p>
+          <canvas id="donutChart" height="200"></canvas>
+          <div id="donut-legend" class="donut-legend"></div>
+        </div>
+      </div>
+
+      <div class="quick-tip" id="quick-tip">
+        <span class="tip-icon">◈</span>
+        <p>Ask your AI coach for a personalized tip based on your current spending.</p>
+        <button class="tip-btn" onclick="switchView('chat')">Ask AI Coach →</button>
+      </div>
+    </section>
+
+    <!-- ── AI CHAT VIEW ── -->
+    <section class="view" id="view-chat">
+      <header class="view-header">
+        <div>
+          <p class="view-eyebrow">AI Coach</p>
+          <h1 class="view-title">Your <em>Money</em> Mentor</h1>
+        </div>
+        <button class="ghost-btn" onclick="clearChat()">Clear Chat</button>
+      </header>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-bubble assistant">
+            <div class="bubble-avatar">◈</div>
+            <div class="bubble-body">
+              Hi! I'm your personal AI finance coach. I have access to your transactions, goals, and spending data. Ask me anything — budget advice, savings strategies, or financial analysis. 💰
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-suggestions">
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Analyze my spending</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">How can I save more?</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Rate my financial health</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">Tips to reduce expenses</button>
+        </div>
+
+        <div class="chat-input-bar">
+          <input
+            type="text"
+            id="chat-input"
+            class="chat-input"
+            placeholder="Ask your coach anything..."
+            onkeydown="if(event.key==='Enter') sendMessage()"
+          />
+          <button class="send-btn" onclick="sendMessage()">
+            <span>↑</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRANSACTIONS VIEW ── -->
+    <section class="view" id="view-transactions">
+      <header class="view-header">
+        <div>
+          <p class="view-eyebrow">Ledger</p>
+          <h1 class="view-title">All <em>Transactions</em></h1>
+        </div>
+        <button class="primary-btn" onclick="openModal('txn-modal')">+ Add</button>
+      </header>
+
+      <div class="filter-bar">
+        <button class="filter-chip active" data-filter="all" onclick="filterTxns(this)">All</button>
+        <button class="filter-chip" data-filter="income" onclick="filterTxns(this)">Income</button>
+        <button class="filter-chip" data-filter="expense" onclick="filterTxns(this)">Expenses</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="txn-tbody">
+            <tr><td colspan="6" class="empty-row">No transactions yet. Add your first one!</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── GOALS VIEW ── -->
+    <section class="view" id="view-goals">
+      <header class="view-header">
+        <div>
+          <p class="view-eyebrow">Planning</p>
+          <h1 class="view-title">Your <em>Goals</em></h1>
+        </div>
+        <button class="primary-btn" onclick="openModal('goal-modal')">+ New Goal</button>
+      </header>
+
+      <div class="goals-grid" id="goals-grid">
+        <div class="empty-state">
+          <p class="empty-icon">◎</p>
+          <p>No goals yet. Set your first financial goal!</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── MODALS ── -->
+
+  <!-- Transaction Modal -->
+  <div class="modal-overlay" id="txn-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Add Transaction</h3>
+        <button class="modal-close" onclick="closeModal('txn-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label class="form-label">Type</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-val="expense" onclick="selectToggle(this,'txn-type')">Expense</button>
+            <button class="toggle-btn" data-val="income" onclick="selectToggle(this,'txn-type')">Income</button>
+          </div>
+          <input type="hidden" id="txn-type" value="expense" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Amount (₹)</label>
+          <input type="number" id="txn-amount" class="form-input" placeholder="0.00" min="0" step="0.01" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Category</label>
+          <select id="txn-category" class="form-input">
+            <option value="Food">Food & Dining</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Health">Health</option>
+            <option value="Rent">Rent / Housing</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Salary">Salary</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Investment">Investment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Description</label>
+          <input type="text" id="txn-desc" class="form-input" placeholder="e.g. Lunch at Cafe" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Date</label>
+          <input type="date" id="txn-date" class="form-input" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="ghost-btn" onclick="closeModal('txn-modal')">Cancel</button>
+        <button class="primary-btn" onclick="addTransaction()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goal Modal -->
+  <div class="modal-overlay" id="goal-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>New Goal</h3>
+        <button class="modal-close" onclick="closeModal('goal-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label class="form-label">Goal Name</label>
+          <input type="text" id="goal-name" class="form-input" placeholder="e.g. Emergency Fund" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Target Amount (₹)</label>
+          <input type="number" id="goal-target" class="form-input" placeholder="100000" min="0" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Current Savings (₹)</label>
+          <input type="number" id="goal-current" class="form-input" placeholder="0" min="0" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Target Date (optional)</label>
+          <input type="date" id="goal-deadline" class="form-input" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="ghost-btn" onclick="closeModal('goal-modal')">Cancel</button>
+        <button class="primary-btn" onclick="addGoal()">Create Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
